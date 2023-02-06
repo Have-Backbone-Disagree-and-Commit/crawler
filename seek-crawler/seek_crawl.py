@@ -147,13 +147,18 @@ try:
     # 배열 -> numpy -
     for eia in emp_info_all:
         numpy_emp_info_all.append(numpy.array(eia))
-        Msg_bot(eia[0], eia[1], eia[2], eia[3], eia[5], eia[6], eia[4])
+        # Msg_bot(eia[0], eia[1], eia[2], eia[3], eia[5], eia[6], eia[4])
         logging.info("success")
         
 
     # DataFrame -> csv
     df_emp_info_all = pandas.DataFrame(numpy_emp_info_all, columns=['link', 'companyName', 'locate', 'job', 'collectionDate', 'post', 'desc'])
-    # df_emp_info_all.to_csv('/Users/kimhuiji/Documents/seek_csv/seek_data.csv')
+    # df_emp_info_all.to_csv('/Users/kimhuiji/Desctop/seek_csv/seek_data.csv')
+
+    if not os.path.exists('output.csv'):
+        df_emp_info_all.to_csv('output.csv', index=False, mode='w', encoding='utf-8-sig')
+    else:
+        df_emp_info_all.to_csv('output.csv', index=False, mode='a', encoding='utf-8-sig', header=False)
 
 except Exception as e:
     trace_back = traceback.format_exc()
