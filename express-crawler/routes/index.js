@@ -45,19 +45,39 @@ async function crawl(){
     const $ = cheerio.load(content);
     const lists = $("#__next > div.JobDetail_cn__WezJh > div.JobDetail_contentWrapper__DQDB6 > div.JobDetail_relativeWrapper__F9DT5 > div.JobContent_className___ca57");
     lists.each((index, list) => {
+
+      // using timestamp format
+      enddate = $(list).find("div.JobContent_descriptionWrapper__SM4UD > section.JobWorkPlace_className__ra6rp > div:nth-child(1) > span.body").text()
+      if (enddate != "상시"){
+        try{
+          timestamp = new Date(enddate).getTime()
+          enddate = timestamp
+        }
+        catch(e){
+          console.log(e)
+        }
+      }
+
       detail = {
+          sitename: "wanted",
           url: detail_url,
-          date: new Date(),
-          name: $(list).find("section.JobHeader_className__HttDA > div:nth-child(2) > h6 > a").text(),
-          description: $(list).find("div.JobContent_descriptionWrapper__SM4UD > section.JobDescription_JobDescription__VWfcb > p:nth-child(1) > span").text(),
+          collectiondate: (new Date()).getTime(),
+          startdate: "",
+          enddate: enddate,
+          companyname: $(list).find("section.JobHeader_className__HttDA > div:nth-child(2) > h6 > a").text(),
+          location: $(list).find("div.JobContent_descriptionWrapper__SM4UD > section.JobWorkPlace_className__ra6rp > div:nth-child(2) > span.body").text(),
+          recruitfield: "",
+          recruittype: "",
+          recruitclassification: "",
+          personnel: "",
+          salary: "",
           position: $(list).find("section.JobHeader_className__HttDA > h2").text(),
           task: $(list).find("div.JobContent_descriptionWrapper__SM4UD > section > p:nth-child(3)").text(),
           qualifications: $(list).find("div.JobContent_descriptionWrapper__SM4UD > section > p:nth-child(5)").text(),
           prefer: $(list).find("div.JobContent_descriptionWrapper__SM4UD > section.JobDescription_JobDescription__VWfcb > p:nth-child(7)").text(),
           welfare: $(list).find("div.JobContent_descriptionWrapper__SM4UD > section.JobDescription_JobDescription__VWfcb > p:nth-child(9)").text(),
-          endDate: $(list).find("div.JobContent_descriptionWrapper__SM4UD > section.JobWorkPlace_className__ra6rp > div:nth-child(1) > span.body").text(),
-          location: $(list).find("div.JobContent_descriptionWrapper__SM4UD > section.JobWorkPlace_className__ra6rp > div:nth-child(2) > span.body").text(),
-          stack: $(list).find("div.JobContent_descriptionWrapper__SM4UD > section.JobDescription_JobDescription__VWfcb > p:nth-child(11)").text()
+          description: $(list).find("div.JobContent_descriptionWrapper__SM4UD > section.JobDescription_JobDescription__VWfcb > p:nth-child(1) > span").text(),
+          stacks: $(list).find("div.JobContent_descriptionWrapper__SM4UD > section.JobDescription_JobDescription__VWfcb > p:nth-child(11)").text()
       }
       detail_data.push(detail)
     })
@@ -66,16 +86,22 @@ async function crawl(){
   }
   console.log(detail_data)
 
-  const headers = Object.keys(detail_data[0]);
-  let csv = headers.join(',') + '\n';
-  
-  detail_data.forEach(row => {
-    let values = headers.map(header => row[header]);
-    // handling the commas inside the fields
-    values = values.map(val => val.toString().replace(/,/g, ' '));
-    csv += values.join(',') + '\n';
+  let csv = '';
+
+  detail_data.forEach(function(row) {
+    let rowData = '';
+    for (let property in row) {
+      let cell = row[property];
+      cell = cell.toString().replace(/"/g, '""');
+      rowData += `"${cell}",`;
+    }
+    csv += rowData.slice(0, -1) + '\n';
   });
-  fs.writeFileSync('./csvFiles/data_' + new Date() + '.csv', csv, { encoding: 'utf8' });
+
+  fs.writeFile('data.csv', csv, function(err) {
+    if (err) throw err;
+    console.log('File saved!');
+  });
 };
 
 /* GET home page. */
