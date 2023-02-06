@@ -1,5 +1,5 @@
-from contextlib import nullcontext
-import datetime
+from datetime import datetime, timedelta
+import time
 import re
 import traceback
 from urllib.request import urlopen
@@ -140,19 +140,22 @@ try:
             for pa in post_all:
                 post_ = pa.text
 
+            # 지금 시간
+            today = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            # today to timestamp
+            collectiondate = time.mktime(datetime.strptime(today, '%Y-%m-%d %H:%M:%S').timetuple())
 
-            today = datetime.datetime.now().date()
-            collectiondate = str(today)
             startdate = 0
             enddate = None
             # h ago, m_ago이면 당일로 계산, d ago이면 오늘날짜 - day
             if 'h ago' in post_ or 'm ago' in post_:
-                startdate = str(today)
+                startdate = today
             elif 'd ago'in post_:
-                numbers = re.sub(r'[^0-9]', '', post_) #숫자만 추출
-                startdate = str(today - datetime.timedelta(int(numbers)))
+                days_ = int(re.sub(r'[^0-9]', '', post_)) #숫자만 추출
+                startdate = (datetime.now() - timedelta(days=days_)).strftime('%Y-%m-%d %H:%M:%S')
+            # startdate to timestamp
+            startdate = time.mktime(datetime.strptime(startdate, '%Y-%m-%d %H:%M:%S').timetuple())
             
-
 
 
             # 링크마다 형식이 달라서 start, end 인덱스로 잡음
