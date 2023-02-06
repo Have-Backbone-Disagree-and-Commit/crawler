@@ -45,12 +45,25 @@ async function crawl(){
     const $ = cheerio.load(content);
     const lists = $("#__next > div.JobDetail_cn__WezJh > div.JobDetail_contentWrapper__DQDB6 > div.JobDetail_relativeWrapper__F9DT5 > div.JobContent_className___ca57");
     lists.each((index, list) => {
+
+      // using timestamp format
+      enddate = $(list).find("div.JobContent_descriptionWrapper__SM4UD > section.JobWorkPlace_className__ra6rp > div:nth-child(1) > span.body").text()
+      if (enddate != "상시"){
+        try{
+          timestamp = new Date(enddate).getTime()
+          enddate = timestamp
+        }
+        catch(e){
+          console.log(e)
+        }
+      }
+
       detail = {
           sitename: "wanted",
           url: detail_url,
-          collectiondate: new Date(),
+          collectiondate: (new Date()).getTime(),
           startdate: "",
-          enddate: $(list).find("div.JobContent_descriptionWrapper__SM4UD > section.JobWorkPlace_className__ra6rp > div:nth-child(1) > span.body").text(),
+          enddate: enddate,
           companyname: $(list).find("section.JobHeader_className__HttDA > div:nth-child(2) > h6 > a").text(),
           location: $(list).find("div.JobContent_descriptionWrapper__SM4UD > section.JobWorkPlace_className__ra6rp > div:nth-child(2) > span.body").text(),
           recruitfield: "",
