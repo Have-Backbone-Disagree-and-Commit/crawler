@@ -1,11 +1,16 @@
 import uvicorn
 from fastapi import FastAPI
+import csv
+import os
+from dotenv import load_dotenv
+from .routers import transmitter
+
+# using dotenv
+load_dotenv()
 
 app = FastAPI()
-
-@app.get("/")
-async def root():
-    return {"message": "Hello fdskfhadkshfljkashfskjdhorld!!!!!"}
+# routing
+app. include_router(transmitter.router)
 
 def start():
     """Launched with `poetry run start` at root level"""
