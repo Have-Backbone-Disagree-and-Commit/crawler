@@ -21,4 +21,5 @@ class Item(BaseModel):
 
 @router.post("/get_test")
 async def get_test(item : Item):
+    print(item.csv)
     return item
