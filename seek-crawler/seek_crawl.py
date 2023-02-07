@@ -202,11 +202,11 @@ try:
 
     # DataFrame -> csv
     df_emp_info_all = pandas.DataFrame(numpy_emp_info_all, columns=data_columns)
-    df_string = df_emp_info_all.to_csv(index=False, header=False)
+    df_string = df_emp_info_all.to_json()
 
-    encoded_df_string = df_string.encode('utf-8').decode('iso-8859-1')
+    # encoded_df_string = df_string.encode('utf-8').decode('iso-8859-1')
 
-    res = requests.post("https://httpbin.org/anything", data = encoded_df_string)
+    res = requests.post("https://httpbin.org/anything", data = df_string)
     print(res)
     
 except Exception as e:

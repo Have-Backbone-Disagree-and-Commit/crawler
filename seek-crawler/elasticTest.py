@@ -19,3 +19,5 @@ with open("seek_data.csv") as file:
         # Save each row as a separate document in Elasticsearch
         res = es.index(index="my_index", id=i, body=document)
         print(res)
+
+        
