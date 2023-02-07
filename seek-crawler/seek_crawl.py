@@ -199,6 +199,7 @@ try:
 
     # DataFrame -> csv
     df_emp_info_all = pandas.DataFrame(numpy_emp_info_all, columns=data_columns)
+    df_emp_info_all = df_emp_info_all.drop(0, axis = 0)
     df_emp_info_all.to_csv('/Users/kimhuiji/Desktop/SEEK_CROLLING/seek_data.csv')
 
 except Exception as e:
