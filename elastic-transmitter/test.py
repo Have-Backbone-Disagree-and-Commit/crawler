@@ -1,9 +1,17 @@
 import elasticsearch
 import csv
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+CLOUD_ID = os.getenv("CLOUD_ID")
+CLOUD_USER = os.getenv("CLOUD_USER")
+CLOUD_PSWD = os.getenv("CLOUD_PSWD")
 
 es = elasticsearch.Elasticsearch(
-    cloud_id="crawl:dXMtY2VudHJhbDEuZ2NwLmNsb3VkLmVzLmlvOjQ0MyQxMzEzNzUzZjNhNGU0NGQ1YTYyNzE5YzkwNjA0Yzc0NiRiODhkZmNjNDU2ODU0Mjc1YjZiOWZiMzcwYmJkMWZkOQ==",
-    http_auth=("elastic", "iZ4PQh7I8RVE8VuWQeyxielP"),
+    cloud_id=CLOUD_ID,
+    http_auth=(CLOUD_USER, CLOUD_PSWD),
 )
 
 with open("data.csv") as file:
@@ -12,4 +20,5 @@ with open("data.csv") as file:
         # Create a dictionary for each row with default column names
         document = {f"column{j}": value for j, value in enumerate(row)}
         # Save each row as a separate document in Elasticsearch
-        es.index(index="my_index", id=i, body=document)
+        res = es.index(index="my_index", id=i, body=document)
+        print(res)
