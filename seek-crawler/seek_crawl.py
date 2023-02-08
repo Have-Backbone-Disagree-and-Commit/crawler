@@ -1,5 +1,7 @@
 from contextlib import nullcontext
-import datetime
+from datetime import datetime, timedelta
+import math
+import time
 import re
 import traceback
 from urllib.request import urlopen
@@ -22,6 +24,7 @@ load_dotenv()
 data_columns = [
     'sitename', #사이트명
     'url', #공고 url
+    'title', #제목
     'collectiondate', #긁어온 날짜
     'startdate', #공고시작일
     'enddate', #공고마감일
@@ -90,16 +93,17 @@ emp_info_all = []
 
 try:
     sitename = 'SEEK'
-    recruitfield = None
-    recruittype = None
-    recruitclassification = None
-    personnel = None
-    salary = None
+    title = ''
+    recruitfield = ''
+    recruittype = ''
+    recruitclassification = ''
+    personnel = ''
+    salary = ''
     task = None
-    qualifications = None
-    prefer = None
-    welfare = None
-    stacks = None
+    qualifications = ''
+    prefer = ''
+    welfare = ''
+    stacks = ''
 
     for pageNum in range(1):
 
@@ -146,17 +150,22 @@ try:
             for pa in post_all:
                 post_ = pa.text
 
-
-            today = datetime.datetime.now().date()
-            collectiondate = str(today)
+            # 지금 시간
+            today = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            # today to timestamp
+            collectiondate = time.mktime(datetime.strptime(today, '%Y-%m-%d %H:%M:%S').timetuple())
+            collectiondate = math.trunc(collectiondate)
             startdate = 0
             enddate = None
             # h ago, m_ago이면 당일로 계산, d ago이면 오늘날짜 - day
             if 'h ago' in post_ or 'm ago' in post_:
-                startdate = str(today)
+                startdate = today
             elif 'd ago'in post_:
-                numbers = re.sub(r'[^0-9]', '', post_) #숫자만 추출
-                startdate = str(today - datetime.timedelta(int(numbers)))
+                days_ = int(re.sub(r'[^0-9]', '', post_)) #숫자만 추출
+                startdate = (datetime.now() - timedelta(days=days_)).strftime('%Y-%m-%d %H:%M:%S')
+            # startdate to timestamp
+            startdate = time.mktime(datetime.strptime(startdate, '%Y-%m-%d %H:%M:%S').timetuple())
+            startdate = math.trunc(startdate)
             
 
 
@@ -172,9 +181,9 @@ try:
                 
 
             # 위치
-            location = emp_info[start_index]
+            location = str(emp_info[start_index])
             # 직무
-            position = emp_info[start_index+1]
+            position = str(emp_info[start_index+1])
             
             # 설명
             description = ''
@@ -185,7 +194,7 @@ try:
 
 
             #데이터에 값 넣기
-            emp_info_all.append([sitename, url, collectiondate, startdate, enddate,
+            emp_info_all.append([sitename, url, title, collectiondate, startdate, enddate,
                                   companyname, location, recruitfield, recruittype,
                                   recruitclassification, personnel, salary, 
                                   position, task, qualifications, prefer, welfare,
@@ -193,19 +202,20 @@ try:
 
         
     numpy_emp_info_all = []
-    # 배열 -> numpy -
+    # 배열 -> numpy  
     for eia in emp_info_all:
         numpy_emp_info_all.append(numpy.array(eia))
         # Msg_bot(eia[0], eia[1], eia[2], eia[3], eia[5], eia[6], eia[4])
-        logging.info("success")
+        # logging.info("success")
         
 
-    # DataFrame -> csv
+    # DataFrame -> json
     df_emp_info_all = pandas.DataFrame(numpy_emp_info_all, columns=data_columns)
-    df_string = df_emp_info_all.to_json()
+    # df_string = df_emp_info_all.to_csv("./crawler/seek-crawler/seek_data.csv", index=False, header=False)
 
-    # encoded_df_string = df_string.encode('utf-8').decode('iso-8859-1')
+    df_string = df_emp_info_all.to_json("./crawler/seek-crawler/seek_json_data.json")
 
+    # json형태의 data를 post request
     res = requests.post("https://httpbin.org/anything", data = df_string)
     print(res)
     
@@ -214,5 +224,3 @@ except Exception as e:
     message = str(e)+ "\n" + str(trace_back)
     logging.error(message)
 
-
-    '''DataFrame to csv(파일 저장 말고)'''
