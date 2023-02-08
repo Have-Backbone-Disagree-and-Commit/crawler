@@ -99,7 +99,7 @@ try:
     recruitclassification = ''
     personnel = ''
     salary = ''
-    task = None
+    task = ''
     qualifications = ''
     prefer = ''
     welfare = ''
@@ -156,7 +156,7 @@ try:
             collectiondate = time.mktime(datetime.strptime(today, '%Y-%m-%d %H:%M:%S').timetuple())
             collectiondate = math.trunc(collectiondate)
             startdate = 0
-            enddate = None
+            enddate = ''
             # h ago, m_ago이면 당일로 계산, d ago이면 오늘날짜 - day
             if 'h ago' in post_ or 'm ago' in post_:
                 startdate = today
