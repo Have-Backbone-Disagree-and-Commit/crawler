@@ -11,6 +11,7 @@ es = elasticsearch.Elasticsearch(
     http_auth=("elastic", "GK8mFwq1WQHStaWHN1FrulJx"),
 )
 
+# elasticsearch에 seek_data.csv 전송
 with open("seek_data.csv") as file:
     reader = csv.reader(file)
     for i, row in enumerate(reader):
