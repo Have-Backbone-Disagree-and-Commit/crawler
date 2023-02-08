@@ -93,19 +93,18 @@ emp_info_all = []
 
 try:
     sitename = 'SEEK'
-    title = ''
     recruitfield = ''
     recruittype = ''
     recruitclassification = ''
     personnel = ''
     salary = ''
-    task = None
+    task = ''
     qualifications = ''
     prefer = ''
     welfare = ''
     stacks = ''
 
-    for pageNum in range(1):
+    for pageNum in range(5):
 
         # seek 채용 사이트
         html = urlopen("https://www.seek.com.au/jobs?page=" + str(pageNum) )
@@ -132,6 +131,9 @@ try:
 
             bsObject = BeautifulSoup(html, "html.parser")
 
+            # 제목
+            title = bsObject.find('h1', class_="yvsb870 _14uh9944u _1cshjhy0 _1cshjhyl _1d0g9qk4 _1cshjhyp _1cshjhy21").text
+
             # 회사명
             companyname = bsObject.find('span', class_="yvsb870 _14uh9944u _1cshjhy0 _1cshjhy2 _1cshjhy21 _1d0g9qk4 _1cshjhyd").text
 
@@ -156,7 +158,7 @@ try:
             collectiondate = time.mktime(datetime.strptime(today, '%Y-%m-%d %H:%M:%S').timetuple())
             collectiondate = math.trunc(collectiondate)
             startdate = 0
-            enddate = None
+            enddate = ''
             # h ago, m_ago이면 당일로 계산, d ago이면 오늘날짜 - day
             if 'h ago' in post_ or 'm ago' in post_:
                 startdate = today
