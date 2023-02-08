@@ -1,4 +1,5 @@
-from fastapi import APIRouter
+from typing import Optional
+from fastapi import APIRouter, FastAPI, Body
 router = APIRouter()
 import os
 import elasticsearch
@@ -8,18 +9,42 @@ from dotenv import load_dotenv
 load_dotenv()
 
 CLOUD_ID = os.getenv("CLOUD_ID")
+print(CLOUD_ID)
 CLOUD_USER = os.getenv("CLOUD_USER")
 CLOUD_PSWD = os.getenv("CLOUD_PSWD")
 
 es = elasticsearch.Elasticsearch(
-    cloud_id="crawl:dXMtY2VudHJhbDEuZ2NwLmNsb3VkLmVzLmlvOjQ0MyQxMzEzNzUzZjNhNGU0NGQ1YTYyNzE5YzkwNjA0Yzc0NiRiODhkZmNjNDU2ODU0Mjc1YjZiOWZiMzcwYmJkMWZkOQ==",
-    http_auth=("elastic", "iZ4PQh7I8RVE8VuWQeyxielP"),
+    cloud_id="crawl:dXMtZWFzdC0yLmF3cy5lbGFzdGljLWNsb3VkLmNvbTo0NDMkNWFlNjQyNWRjNGJiNDRjNThlYjExMTdkMzVlNmQ0NGQkMjJjYjEwZTA2OTEzNDYyNzg1MTY4N2MzZGM3ZGExNTM=",
+    http_auth=("elastic", "qFEupQHbmLZYFGT6jG8ZvRTm"),
 )
 
 class Item(BaseModel):
-    csv: str
+    sitename : Optional[str]
+    url : Optional[str]
+    collectiondate : Optional[str]
+    startdate : Optional[str]
+    enddate : Optional[str]
+    companyname : Optional[str]
+    location : Optional[str]
+    recruitfield : Optional[str]
+    recruittype : Optional[str]
+    recruitclassification : Optional[str]
+    personnel : Optional[str]
+    salary : Optional[str]
+    position : Optional[str]
+    task : Optional[str]
+    qualifications : Optional[str]
+    prefer : Optional[str]
+    welfare : Optional[str]
+    description : Optional[str]
+    stacks : Optional[str]
+    
 
-@router.post("/get_test")
-async def get_test(item : Item):
-    print(item.csv)
-    return item
+@router.post("/post")
+async def post(data : dict):
+    
+    for key, value in data.items():
+        res = es.index(index="jobs", id=key, body=value)
+        
+    print(res)
+    return res
