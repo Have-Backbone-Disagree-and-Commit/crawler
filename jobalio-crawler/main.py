@@ -3,12 +3,13 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from datetime import datetime
 from time import sleep
+from time import time
 import csv
 import re
 import pandas as pd
 import os
 
-infoTagList = ['제목', '기관명', '채용분야', '고용형태', '학력정보', '채용구분', '근무지', '채용인원', '공고기간']
+infoTagList = ['제목', '기관명', '채용분야', '고용형태', '학력정보', '채용구분', '근무지', '채용인원', '공고기간', '우대조건', '응시자격']
 infoValueList = []
 
 year = datetime.today().year
@@ -34,11 +35,6 @@ pageCount = int(re.sub(r'[^0-9]', '', onclickText))
 
 # 페이지 개수 만큼 반복
 for page in range (1, pageCount+1):
-    dict = {}
-
-    for element in infoTagList:
-        dict[element] = []
-
     # 해당 페이지로 이동
     pageUrl = 'https://job.alio.go.kr/recruit.do?pageNo=' + str(page) + '&idx=&s_date=' + from_date + '&e_date=' + to_date + '&detail_code=R600020&org_type=&org_name=&title=&order=REG_DATE'
     driver.get(pageUrl)
@@ -58,6 +54,12 @@ for page in range (1, pageCount+1):
         linkList.append(href)
 
     for link in linkList:
+        dict = {}
+
+        for element in infoTagList:
+            dict[element] = []
+
+
         # 링크 접속
         driver.get(link)
 
@@ -73,30 +75,53 @@ for page in range (1, pageCount+1):
 
                     # infoTag가 허용하는 값인 경우
                     if infoTagText in infoTagList:
+                        # dict[infoTagText] = value.find_element(By.TAG_NAME, "td").get_attribute('innerText')
                         dict[infoTagText].append(value.find_element(By.TAG_NAME, "td").get_attribute('innerText'))
                         # print(infoTagText, dict[infoTagText][len(dict[infoTagText])-1])
 
             except NoSuchElementException:
                 continue
 
-    print('printing... ' + str(page))
+        print('printing... ' + str(page))
 
-    # dataframe으로 변환
-    data = {
-        "제목": dict["제목"],
-        "기관명": dict["기관명"],
-        "채용분야": dict["채용분야"],
-        "고용형태": dict["고용형태"],
-        "학력정보": dict["학력정보"],
-        "채용구분": dict["채용구분"],
-        "근무지": dict["근무지"],
-        "채용인원": dict["채용인원"],
-        "공고기간": dict["공고기간"]
-    }
-    df = pd.DataFrame(data)
 
-    # csv로 추출
-    if not os.path.exists('output.csv'):
-        df.to_csv('output.csv', index=False, mode='w', encoding='utf-8-sig')
-    else:
-        df.to_csv('output.csv', index=False, mode='a', encoding='utf-8-sig', header=False)
+        date_list = str(dict["공고기간"][0]).split(" ~ ")
+
+        start_date = "20" + date_list[0]
+        start_dt = datetime.strptime(start_date, '%Y.%m.%d')
+
+        end_date = "20" + date_list[1]
+        end_dt = datetime.strptime(end_date, '%Y.%m.%d')
+
+        # dataframe으로 변환
+        data = {
+            "sitename" : dict["제목"],
+            "url" : str(link),
+            "collectiondate" : str(time()),
+            "startdate" : start_dt.timestamp(),
+            "enddate" : end_dt.timestamp(),
+            "companyname" : dict["기관명"],
+            "location" : dict["근무지"],
+            "recruitfield" : dict["채용분야"],
+            "recruittype" : dict["고용형태"],
+            "recruitclassification" : dict["채용구분"],
+            "personnel" : dict["채용인원"],
+            "salary" : "",
+            "position" : "",
+            "task" : "",
+            "qualifications" : dict["응시자격"],
+            "prefer" : dict["우대조건"],
+            "welfare" : "",
+            "description" : "",
+            "stacks" : ""
+        }
+
+        df = pd.DataFrame(data)
+        js = df.to_json(force_ascii=False)
+        print(js)
+
+        # csv로 추출
+        if not os.path.exists('output.csv'):
+            df.to_csv('output.csv', index=False, mode='w', encoding='utf-8-sig')
+        else:
+            df.to_csv('output.csv', index=False, mode='a', encoding='utf-8-sig', header=False)
