@@ -95,8 +95,9 @@ for page in range (1, pageCount+1):
 
         # dataframe으로 변환
         data = {
-            "sitename" : dict["제목"],
+            "sitename" : "Job Alio",
             "url" : str(link),
+            "title" : dict["제목"],
             "collectiondate" : str(time()),
             "startdate" : start_dt.timestamp(),
             "enddate" : end_dt.timestamp(),
