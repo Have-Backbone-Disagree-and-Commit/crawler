@@ -3,6 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from datetime import datetime
 from time import sleep
+from time import time
 import csv
 import re
 import pandas as pd
@@ -83,15 +84,22 @@ for page in range (1, pageCount+1):
 
         print('printing... ' + str(page))
 
-        
+
+        date_list = str(dict["공고기간"][0]).split(" ~ ")
+
+        start_date = "20" + date_list[0]
+        start_dt = datetime.strptime(start_date, '%Y.%m.%d')
+
+        end_date = "20" + date_list[1]
+        end_dt = datetime.strptime(end_date, '%Y.%m.%d')
 
         # dataframe으로 변환
         data = {
             "sitename" : dict["제목"],
             "url" : str(link),
-            "collectiondate" : "",
-            "startdate" : "",
-            "enddate" : "",
+            "collectiondate" : str(time()),
+            "startdate" : start_dt.timestamp(),
+            "enddate" : end_dt.timestamp(),
             "companyname" : dict["기관명"],
             "location" : dict["근무지"],
             "recruitfield" : dict["채용분야"],
