@@ -3,6 +3,8 @@ var router = express.Router();
 const puppeteer = require('puppeteer');
 const cheerio = require('cheerio');
 const fs = require('fs');
+const axios = require('axios');
+const request = require('request')
 
 let link_list = {};
 let detail_data = []
@@ -51,7 +53,7 @@ async function crawl(){
       if (enddate != "상시"){
         try{
           timestamp = new Date(enddate).getTime()
-          enddate = timestamp
+          enddate = timestamp.toString()
         }
         catch(e){
           console.log(e)
@@ -61,7 +63,8 @@ async function crawl(){
       detail = {
           sitename: "wanted",
           url: detail_url,
-          collectiondate: (new Date()).getTime(),
+          title: "",
+          collectiondate: (new Date()).getTime().toString(),
           startdate: "",
           enddate: enddate,
           companyname: $(list).find("section.JobHeader_className__HttDA > div:nth-child(2) > h6 > a").text(),
@@ -84,8 +87,11 @@ async function crawl(){
     console.log("Crawl Finished!\r\n")
     browser.close();
   }
-  console.log(detail_data)
+  //console.log(detail_data)
+  return detail_data
+  
 
+  /* saving to scv file code
   let csv = '';
 
   detail_data.forEach(function(row) {
@@ -101,7 +107,9 @@ async function crawl(){
   fs.writeFile('data.csv', csv, function(err) {
     if (err) throw err;
     console.log('File saved!');
-  });
+  });*/
+
+
 };
 
 /* GET home page. */
@@ -110,9 +118,23 @@ router.get('/', async function(req, res, next) {
 });
 
 router.get('/crawl', async function(req, res, next) {
-  await crawl() 
-  // elastic input
-  res.sendStatus(200)
+  await crawl().then(function(data){
+    // convert data 
+    const result = data.reduce((acc, curr, index) => {
+      acc[index.toString()] = curr;
+      return acc;
+    }, {});
+    console.log(result)
+
+    url = "http://127.0.0.1:8000/elastic"
+    axios.post(url, result
+    ).then((res) => {
+              console.log(res);
+            });
+
+  }).then(function(){
+    res.sendStatus(200)
+  })
 });
 
 module.exports = router;
