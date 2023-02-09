@@ -104,7 +104,7 @@ try:
     welfare = ''
     stacks = ''
 
-    for pageNum in range(5):
+    for pageNum in range(2):
 
         # seek 채용 사이트
         html = urlopen("https://www.seek.com.au/jobs?page=" + str(pageNum) )
@@ -215,8 +215,8 @@ try:
     df_emp_info_all = pandas.DataFrame(numpy_emp_info_all, columns=data_columns)
     # df_string = df_emp_info_all.to_csv("./crawler/seek-crawler/seek_data.csv", index=False, header=False)
 
-    # df_string = df_emp_info_all.to_json("./crawler/seek-crawler/seek_json_data.json", orient='index')
-    df_string = df_emp_info_all.to_json("./crawler/seek-crawler/seek_json_data.json", orient='records')
+    df_string = df_emp_info_all.to_json("./crawler/seek-crawler/seek_json_data.json", orient='index')
+    # df_string = df_emp_info_all.to_json("./crawler/seek-crawler/seek_json_data.json", orient='records')
 
     # json형태의 data를 post request
     res = requests.post("https://httpbin.org/anything", data = df_string)
