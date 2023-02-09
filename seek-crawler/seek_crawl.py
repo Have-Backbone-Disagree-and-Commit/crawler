@@ -215,7 +215,8 @@ try:
     df_emp_info_all = pandas.DataFrame(numpy_emp_info_all, columns=data_columns)
     # df_string = df_emp_info_all.to_csv("./crawler/seek-crawler/seek_data.csv", index=False, header=False)
 
-    df_string = df_emp_info_all.to_json("./crawler/seek-crawler/seek_json_data.json")
+    # df_string = df_emp_info_all.to_json("./crawler/seek-crawler/seek_json_data.json", orient='index')
+    df_string = df_emp_info_all.to_json("./crawler/seek-crawler/seek_json_data.json", orient='records')
 
     # json형태의 data를 post request
     res = requests.post("https://httpbin.org/anything", data = df_string)
