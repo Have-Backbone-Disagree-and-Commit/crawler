@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 from time import time, sleep
 from tqdm import tqdm
 
+
 """
 프로그래머스 웹페이지 크롤링 프로세스
 1. 크롤링할 페이지 수를 설정한다.
@@ -59,7 +60,26 @@ def extract_programmers_jobs(page_num):
         soup = BeautifulSoup(html, "html.parser")
 
         #결측값 대비
-        site_name, url, collection_date, start_date, end_date, company_name, location, recruit_field, recruit_type, recruit_classification, personnel, salary, position, task, qualification, prefer, welfare, description, stacks = "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""
+        site_name = "" 
+        url = "" 
+        title = "" 
+        collection_date = "" 
+        start_date = "" 
+        end_date = "" 
+        company_name = "" 
+        location = "" 
+        recruit_field = "" 
+        recruit_type = "" 
+        recruit_classification = "" 
+        personnel = "" 
+        salary = "" 
+        position = "" 
+        task = "" 
+        qualification = "" 
+        prefer = "" 
+        welfare = "" 
+        description = "" 
+        stacks = ""
 
         #site_name
         site_name = "programmers"
@@ -67,8 +87,17 @@ def extract_programmers_jobs(page_num):
         #post_url(공고 url)
         url = post_url
 
+        #title(공고 제목)
+        try:
+            title = driver.find_element(By.XPATH, '//*[@id="career-app-legacy"]/div/div[1]/div[1]/header/div/div[2]/div/h2').text
+            #title = title.replace(",","/")
+        except:
+            pass
+
         #collection_date
         collection_date = time()
+        collection_date = int(collection_date)
+        collection_date = str(collection_date)
 
         #start_date(공고 시작일) is not provided from the site.
 
@@ -87,18 +116,12 @@ def extract_programmers_jobs(page_num):
         #location(회사 위치)
         try:
             location = driver.find_element(By.CSS_SELECTOR, 'div.oSd94NeynGy8qiuPFFgg > div:nth-child(2) > div > div:last-child').text
-            location = location.replace(",", "/")
+            #location = location.replace(",", "/")
         except:
             pass
 
-        #recruit_field(채용 분야) #공고 상단 이름
-        try:
-            recruit_field = driver.find_element(By.XPATH, '//*[@id="career-app-legacy"]/div/div[1]/div[1]/header/div/div[2]/div/h2').text
-            #recruit_field = recruit_field.split(",") #convert string with comma as seperator to list
-            #recruit_field = "/".join(recruit_field) #convert list to string with / as seperator
-            recruit_field = recruit_field.replace(",","/")
-        except:
-            pass
+        #recruit_field(채용 분야) is not provided from the site.
+        
 
         #recruit_type(고용 형태) #정규직
         try:
@@ -119,9 +142,7 @@ def extract_programmers_jobs(page_num):
         #position(회사에서 원하는 포지션) #직무
         try:
             position = driver.find_element(By.XPATH, '//*[@id="career-app-legacy"]/div/div[1]/div[1]/section/div/div[1]/div[1]/div[2]').text
-            #position = position.split(',') # convert string with comma as seperator to list
-            #position = "/".join(position)  # convert list to string with / as seperator 
-            position = position.replace(",", "/")
+            #position = position.replace(",", "/")
         except:
             pass
 
