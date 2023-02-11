@@ -81,7 +81,7 @@ class Item(BaseModel):
 async def elastic(data : dict):
     try:
         for key, value in data.items():
-            res = es.index(index="crawl_database", id=key, body=value)
+            res = es.index(index="crawl_database2", body=value)
             print(res)
         return res
     except Exception as e:
